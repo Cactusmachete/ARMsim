@@ -16,7 +16,7 @@ b = [];
 opcode = [];
 cond = [];
 middle = [];
-memory = [i for i in range(2048)]
+memory = [0]*2048
 global Z,N
 
 def twos_comp(val, bits):
@@ -81,16 +81,15 @@ def decode():
 	elif(num[4:6]=="01"):
 		firstop = "R"+str(int(lel[12:16],2))
 		secondop = "R"+str(int(lel[16:20],2))
+		offset = str(int(lel[20:],2))
 		if(num[11]=="0"):
 			mainstring = "STR"
-			print("DECODE: Operation is "+mainstring+condstring+", First operand(base address) is "+firstop+", Source register is "+secondop+", Source Register "+destinationreg)
-			print("DECODE: Read Registers "+firstop+" = " + str(reg[int(lel[12:16],2)])+", "+secondop+" = "+str(reg[int(lel[20:],2)]))
+			print("DECODE: Operation is "+mainstring+condstring+", First operand(base address) is "+firstop+", Offset is "+offset+", Source Register "+secondop)
+			print("DECODE: Read Registers "+firstop+" = " + str(int(lel[12:16],2))+", "+secondop+" = "+str(reg[int(lel[16:20],2)]))
 		elif(num[11]=="1"):
 			mainstring = "LDR"
-			print("DECODE: Operation is "+mainstring+condstring+", First operand(base address) is "+firstop+", Destination register is "+secondop+", Destination Register "+destinationreg)
-			print("DECODE: Read Registers "+firstop+" = " + str(reg[int(lel[12:16],2)])+", "+secondop+" = "+str(reg[int(lel[20:],2)]))
-		offset = str(int(lel[20:],2))
-		print("DECODE: Offset is "+offset)
+			print("DECODE: Operation is "+mainstring+condstring+", First operand(base address) is "+firstop+", Offset is "+offset+", Source Register "+secondop)
+			print("DECODE: Read Registers "+firstop+" = " + str(int(lel[12:16],2))+", "+secondop+" = "+str(reg[int(lel[16:20],2)]))
 
 	elif(num[4:6]=="10"):
 		mainstring = "B"
@@ -406,20 +405,14 @@ def execute(N,Z,flag,nxt):
 				elif(cond==8 and (N==1 or Z==1)):
 					perform=1;
 			if(perform==1 or cond==0):
-				if(num[6]=='1'):
+				
 					if(num[8]=='0'):
 						print("EXECUTE: Store "+ "R"+str(secondop)+" to memory address")
-						memory[firstop-offset] = reg[secondop] 
+						memory[reg[firstop]-offset] = reg[secondop] 
 					else:
 						print("EXECUTE: Store "+ "R"+str(secondop)+" to memory address")
-						memory[firstop+offset] = reg[secondop] 
-				else:
-					if(num[8]=='0'):
-						print("EXECUTE: Store "+ "R"+str(secondop)+" to memory address")
-						memory[firstop-reg[offset]] = reg[secondop] 
-					else:
-						print("EXECUTE: Store "+ "R"+str(secondop)+" to memory address")
-						memory[firstop+reg[offset]] = reg[secondop] 
+						memory[reg[firstop]+offset] = reg[secondop] 
+				
 
 			
 		elif(num[11]=="1"):
@@ -442,28 +435,23 @@ def execute(N,Z,flag,nxt):
 				elif(cond==8 and (N==1 or Z==1)):
 					perform=1;
 			if(perform==1 or cond==0):
-				if(num[6]=='1'):
+				
 					if(num[8]=='0'):
 						print("EXECUTE: Load to "+ "R"+str(secondop)+" from memory address")
-						nxt = memory[firstop-offset]
+						nxt = memory[reg[firstop]-offset]
 					else:
 						print("EXECUTE: Load to "+ "R"+str(secondop)+" from memory address")
-						nxt = memory[firstop+offset]
-				else:
-					if(num[8]=='0'):
-						print("EXECUTE: Load to "+ "R"+str(secondop)+" from memory address")
-						nxt = memory[firstop-reg[offset]]
+						nxt = memory[reg[firstop]+offset]
+				
+				
+					if(secondop==15):
+						flag=1;
 					else:
-						print("EXECUTE: Load to "+ "R"+str(secondop)+" from memory address")
-						nxt = memory[firstop+reg[offset]]
-				if(secondop==15):
-					flag=1;
-				else:
-					flag=0;
-					reg[secondop] = nxt;
-					nxt=0;
+						flag=0;
+						reg[secondop] = nxt;
+						nxt=0;
 			
-		print("Offset is "+offset)
+		
 
 
 	elif(num[4:6]=="10"):
