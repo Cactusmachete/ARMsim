@@ -20,9 +20,9 @@ memory = [0]*2048
 global Z,N
 
 def twos_comp(val, bits):
-    if (val & (1 << (bits - 1))) != 0: 
-        val = val - (1 << bits)       
-    return val   
+		if (val & (1 << (bits - 1))) != 0: 
+				val = val - (1 << bits)       
+		return val   
 
 
 def decode():
@@ -94,7 +94,13 @@ def decode():
 	elif(num[4:6]=="10"):
 		mainstring = "B"
 		print("DECODE: Operation is "+mainstring+condstring)
+	
+	elif(num == "11101111000000000000000001101011"):
+		print("DECODE: Operation is SWI 0x6b")
 
+	elif(num == "11101111000000000000000001101100"):
+		print("DECODE: Operation is SWI 0x6c")
+		
 
 def execute(N,Z,flag,nxt):
 	lel = b[reg[15]]
@@ -158,15 +164,16 @@ def execute(N,Z,flag,nxt):
 					perform=1;
 			if(perform==1 or cond==0):
 				if(num[6]=='0'):
-					print("EXECUTE:  Bitwise AND of "+ str(reg[firstop])+" and "+str(reg[secondop]))
-					r[destinationreg] = reg[firstop]&reg[secondop]
+					print("EXECUTE: Bitwise AND of "+ str(reg[firstop])+" and "+str(reg[secondop]))
+					mem();
+					reg[destinationreg] = reg[firstop][secondop]
 					
 				else:
-					print("EXECUTE:  Bitwise AND of "+ str(reg[firstop])+" and "+str(secondopas))
-					r[destinationreg] = reg[firstop]&secondop
+					print("EXECUTE: Bitwise AND of "+ str(reg[firstop])+" and "+str(secondopas))
+					mem();
+					reg[destinationreg] = reg[firstop]&secondop
 					
-
-			
+				print("WRITEBACK: Write "+str(reg[destinationreg])+" to R"+str(destinationreg))					
 		elif(num[7:11]=="0010"):
 			#SUB
 			if(cond>0):
@@ -189,12 +196,15 @@ def execute(N,Z,flag,nxt):
 			if(perform==1 or cond==0):
 				if(num[6]=='0'):
 					print("EXECUTE:  Subtract "+ str(reg[firstop])+" and "+str(reg[secondop]))
+					mem();
 					reg[destinationreg] = reg[firstop]-reg[secondop]
 					
 				else:
 					print("EXECUTE:  Subtract "+ str(reg[firstop])+" and "+str(secondop))
+					mem();
 					reg[destinationreg] = reg[firstop]-secondop
-					
+				
+				print("WRITEBACK: Write "+str(reg[destinationreg])+" to R"+str(destinationreg))	
 
 		elif(num[7:11]=="0100"):
 			#"ADD"
@@ -219,12 +229,15 @@ def execute(N,Z,flag,nxt):
 				
 				if(num[6]=='0'):
 					print("EXECUTE: Add "+ str(reg[firstop])+" and "+str(reg[secondop]))
+					mem();
 					reg[destinationreg] = reg[firstop]+reg[secondop]
 					
 				else:
 					print("EXECUTE: Add "+ str(reg[firstop])+" and "+str(secondop))
+					mem();
 					reg[destinationreg] = reg[firstop]+secondop
-					
+				
+				print("WRITEBACK: Write "+str(reg[destinationreg])+" to R"+str(destinationreg))	
 		elif(num[7:11]=="1010"):
 			#"CMP"
 			if(num[6]=='0'):
@@ -258,6 +271,9 @@ def execute(N,Z,flag,nxt):
 					print("EXECUTE: Compare "+ str(reg[firstop])+" and "+str(reg[secondop]))
 				else:
 					print("EXECUTE: Compare "+ str(reg[firstop])+" and "+str(secondop))
+				
+				mem();
+				print("WRITEBACK: Write "+str(Z)+" to Z and "+str(N)+" to N")
 
 		elif(num[7:11]=="1011"):
 			#"CMN"
@@ -292,6 +308,8 @@ def execute(N,Z,flag,nxt):
 					print("EXECUTE: Negated Compare "+ str(reg[firstop])+" and "+str(-1*reg[secondop]))
 				else:
 					print("EXECUTE: Negated Compare "+ str(reg[firstop])+" and "+str(-1*secondop))
+				mem();
+				print("WRITEBACK: Write "+str(Z)+" to Z and "+str(N)+" to N")
 
 		elif(num[7:11]=="1100"):
 			#"ORR"
@@ -315,12 +333,15 @@ def execute(N,Z,flag,nxt):
 			if(perform==1 or cond==0):
 				if(num[6]=='0'):
 					print("EXECUTE: Logical OR of "+ str(reg[firstop])+" and "+str(reg[secondop]))
-					r[destinationreg] = reg[firstop]|reg[secondop]
+					mem();
+					reg[destinationreg] = reg[firstop]|reg[secondop]
 					
 				else:
 					print("EXECUTE: Logical OR of "+ str(reg[firstop])+" and "+str(secondop))
-					r[destinationreg] = reg[firstop]|secondop
-					
+					mem();
+					reg[destinationreg] = reg[firstop]|secondop
+				
+				print("WRITEBACK: Write "+str(reg[destinationreg])+" to R"+str(destinationreg))	
 
 		elif(num[7:11]=="1101"):
 			#"MOV"
@@ -344,12 +365,15 @@ def execute(N,Z,flag,nxt):
 			if(perform==1 or cond==0):
 				if(num[6]=='0'):
 					print("EXECUTE: MOV "+ "R"+str(secondop)+" to "+"R"+str(destinationreg))
+					mem();
 					reg[destinationreg] = reg[secondop]
 					
 				else:
 					print("EXECUTE: MOV "+ str(secondop)+" to "+"R"+str(destinationreg))
+					mem();
 					reg[destinationreg] = secondop
-					
+				
+				print("WRITEBACK: Write "+str(reg[destinationreg])+" to R"+str(destinationreg))	
 
 		elif(num[7:11]=="1111"):
 			#"MVN"
@@ -373,12 +397,15 @@ def execute(N,Z,flag,nxt):
 			if(perform==1 or cond==0):
 				if(num[6]=='0'):
 					print("EXECUTE: MOV Negated "+ "-R"+str(secondop)+" to "+"R"+str(reg[firstop]))
-					r[destinationreg] = -1*reg[secondop]
+					mem();
+					reg[destinationreg] = -1*reg[secondop]
 					
 				else:
 					print("EXECUTE: MOV Negated "+ str(-1*secondop)+" to "+"R"+str(reg[firstop]))
-					r[destinationreg] = -1*secondop
-					
+					mem();
+					reg[destinationreg] = -1*secondop
+				
+				print("WRITEBACK: Write "+str(reg[destinationreg])+" to R"+str(destinationreg))		
 		
 	
 	elif(num[4:6]=="01"):
@@ -408,11 +435,13 @@ def execute(N,Z,flag,nxt):
 				
 					if(num[8]=='0'):
 						print("EXECUTE: Store "+ "R"+str(secondop)+" to memory address")
+						print("MEMORY: Store "+str(reg[secondop])+" to the memory")
 						memory[reg[firstop]-offset] = reg[secondop] 
 					else:
 						print("EXECUTE: Store "+ "R"+str(secondop)+" to memory address")
+						print("MEMORY: Store "+str(reg[secondop])+" to the memory")
 						memory[reg[firstop]+offset] = reg[secondop] 
-				
+					print("WRITEBACK: No writeback operation")
 
 			
 		elif(num[11]=="1"):
@@ -438,11 +467,13 @@ def execute(N,Z,flag,nxt):
 				
 					if(num[8]=='0'):
 						print("EXECUTE: Load to "+ "R"+str(secondop)+" from memory address")
+						print("MEMORY: Load "+str(memory[reg[firstop]-offset])+" from the memory")
 						nxt = memory[reg[firstop]-offset]
 					else:
 						print("EXECUTE: Load to "+ "R"+str(secondop)+" from memory address")
+						print("MEMORY: Load "+str(memory[reg[firstop]+offset])+" from the memory")
 						nxt = memory[reg[firstop]+offset]
-				
+					print("WRITEBACK: Write "+str(nxt)+" to R"+str(secondop))	
 				
 					if(secondop==15):
 						flag=1;
@@ -475,16 +506,28 @@ def execute(N,Z,flag,nxt):
 				perform=1;
 		if(perform==1 or cond==0):
 			addr = twos_comp(int(lel[8:],2), len(lel[8:])) + 2
-			print("EXECUTE: Branch to instruction address "+ str(addr))
-			
+			print("EXECUTE: Branch to instruction address "+ str((reg[15]+addr)*4))
+			mem();			
+			print("WRITEBACK: Write "+str((reg[15]+addr)*4)+" (decimal) to R15");
 			nxt = addr;
 			flag=1
+
+	elif(num == "11101111000000000000000001101011"):
+		print("EXECUTE: Please input an integer: ")
+		reg[0] = int(input());
+		print("EXECUTE: "+str(reg[0])+" is the input")
+		mem();
+		print("WRITEBACK: Write "+str(reg[0])+" to R0")
+
+	elif(num == "11101111000000000000000001101100"):
+		print("EXECUTE: Value in R1 is written to the file address in R1")
+		print("EXECUTE: Output: "+str(reg[1]))
+		mem();
+		print("WRITEBACK: No writeback operation")
 	return N,Z,flag,nxt
 
-		
-
-
-
+def mem():
+	print("MEMORY: No memory operation")
 
 if __name__ == '__main__':
 	f = open("test.mem","r");
@@ -506,9 +549,12 @@ if __name__ == '__main__':
 	while(True):
 		instruction=instr[reg[15]]
 		print("FETCH: Fetch instruction "+instr[reg[15]][instr[reg[15]].find(" "):]+" from address "+instr[reg[15]][0:instr[reg[15]].find(" ")])
+		if b[reg[15]] == "11101111000000000000000000010001":
+			mem();
+			print("EXIT:");
+			break;
 		decode();
 		N,Z,flag,val=execute(N,Z,flag,nxt);
-
 		if(flag==0):
 			reg[15]+=1
 		else:
@@ -516,3 +562,5 @@ if __name__ == '__main__':
 			flag=0
 		print("\n")
 		
+			
+			
