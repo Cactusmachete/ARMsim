@@ -29,5 +29,5 @@ if __name__ == '__main__':
     middle.append(l[4:7]);
     opcode.append(l[7:11]);
   while(True):
-    print("Fetch instruction "+instr[reg[15]][0:instr[reg[15]].find(" ")]+" ");
+    print("Fetch instruction "+instr[reg[15]][instr[reg[15]].find(" "):]+" from address "+instr[reg[15]][0:instr[reg[15]].find(" ")]);
   print(instr);
