@@ -1,7 +1,7 @@
 # ARMsim
 An ARM Assembly Simulator made for the course Computer Organisation in monsoon'17
 
-# Suported conditionals:
+## Suported conditionals:
 EQ
 NE
 MI
@@ -11,7 +11,7 @@ LT
 GT
 LE
 
-# Supported operations:
+## Supported operations:
 Bitwise AND
 SUB
 AND
